@@ -1,13 +1,50 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Logger (not Singleton yet)</title>
+	<meta charset="utf-8">
+	<title>Logger (registrando cliques de botões)</title>
 </head>
 <body>
-	<form action="./ativSup01.php" method="post">
-		<input type="text" name="nome">
-		<input type="text" name="mensagem" style="width:300px">
-		<button>Logar</button>
-	</form>
+	<button id="botao1" class="botao">BOTÃO 1</button>
+	<button id="botao2" class="botao">BOTÃO 2</button>
+	<button id="botao3" class="botao">BOTÃO 3</button>
+	<button id="botao4" class="botao">BOTÃO 4</button>
+
+	<div id="logStatus" style="font-weight: bold"></div>
+
+	<script>
+		const btn = document.getElementsByClassName('botao');
+		const logStatusContainer = document.getElementById('logStatus');
+
+		Array.from(btn)
+		.forEach(function(item) {
+			item.addEventListener('click', function(e) {
+				e.preventDefault();
+				registrarEvento(this);
+			})
+		});
+
+		function registrarEvento(el) {
+			const XHR = new XMLHttpRequest();
+			const DONE = 4;
+			const OK = 200;
+
+			XHR.open('POST', './ativSup01.php');
+			XHR.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			XHR.onreadystatechange = function() {
+				if (this.readyState === DONE && this.status === OK) {
+					var responseData = JSON.parse(this.responseText);
+					var cor = responseData.success ? '#20e60a' : '#f00a0a';
+					var id = 
+						Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+					logStatusContainer.innerHTML += "<p id='"+ id +"' style='color:"+ cor +"'>"+ responseData.message +"</p>";
+					setTimeout(function() {
+						document.getElementById(id).innerText = '';
+					}, 5000, id);
+				}
+			}
+			XHR.send(encodeURI('botao=' + el.innerText));
+		}
+	</script>
 </body>
 </html>
