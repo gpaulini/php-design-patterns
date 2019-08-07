@@ -9,25 +9,46 @@ class LogFile
 {
 	const FILE = '.log';
 
+	private static $instancia;
+
+	private function __construct() {}
+
+	public static function getInstancia()
+	{
+		if (self::$instancia === null) self::$instancia = new self;
+
+		return self::$instancia;
+	}
+
 	public function registrarNovoEvento($evento)
 	{
-		$arquivo = $this->capturarArquivoLog();
+		$arquivo = $this->abrirArquivoLog();
 
 		return (fwrite($arquivo, $evento . "\n")) ? true : false;
 	}
 
-	private function capturarArquivoLog()
+	private function abrirArquivoLog()
 	{
 		return fopen(self::FILE, 'a');
 	}
 }
 
-$logger = new LogFile;
+
+//****************
+
+date_default_timezone_set('America/Sao_Paulo');
+
+$logger = LogFile::getInstancia();
 
 $descricaoEvento = date('Y-m-d H:i:s') . " >> {$_POST['botao']} foi clicado;";
 
 if ($logger->registrarNovoEvento($descricaoEvento)) {
-	echo json_encode(array('message' => '"' . $descricaoEvento . '" registrado', 'success' => true));
+	echo json_encode(
+		array(
+			'message' => '"' . $descricaoEvento . '" registrado', 
+			'success' => true
+		)
+	);
 	exit;
 }
 
